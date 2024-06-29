@@ -1,6 +1,6 @@
 {{ if and (eq .chezmoi.arch "amd64") (not .headless) (not .ephemeral) -}}
 
-#!/bin/sh
+#!/bin/bash
 
 # Function to compare installed and latest version
 version_gt() {
