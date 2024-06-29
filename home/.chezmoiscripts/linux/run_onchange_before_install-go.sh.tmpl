@@ -1,13 +1,16 @@
 {{- if and (or (eq .osid "linux-pop") (eq .osid "linux-ubuntu")) (not .ephemeral) -}}
 
-#!/bin/bash
+#!/bin/sh
 
 set -eufo pipefail
 
+# Define the PPA URL
+PPA_URL="ppa:longsleep/golang-backports"
+
 # Check if the PPA is already added
-if ! grep -q "^deb .*$longsleep/golang-backports" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+if ! grep -q "^deb .*$PPA_URL" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
   echo "Adding Golang backports PPA..."
-  sudo add-apt-repository -y ppa:longsleep/golang-backports
+  sudo add-apt-repository -y $PPA_URL
 else
   echo "Golang backports PPA already added."
 fi
