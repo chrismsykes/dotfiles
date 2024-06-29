@@ -1,0 +1,37 @@
+{{ if or (eq .osid "linux-pop") (eq .osid "linux-ubuntu") -}}
+
+#!/bin/sh
+
+set -eufo pipefail
+
+# Function to check if pip is installed
+is_pip_installed() {
+  command -v pip &> /dev/null
+}
+
+# Function to get the installed version of a package
+get_installed_version() {
+  pip show "$1" | grep -Po 'Version: \K.*'
+}
+
+PACKAGE="pynvim"
+
+# Ensure pip is installed
+if is_pip_installed; then
+  INSTALLED_VERSION=$(get_installed_version "$PACKAGE" || echo "none")
+
+  # Install or update to the latest stable version
+  echo "Checking for the latest stable version of $PACKAGE..."
+  pip install --upgrade "$PACKAGE"
+
+  NEW_VERSION=$(get_installed_version "$PACKAGE")
+  if [ "$INSTALLED_VERSION" != "$NEW_VERSION" ]; then
+    echo "$PACKAGE updated to version $NEW_VERSION."
+  else
+    echo "$PACKAGE is already at the latest stable version ($INSTALLED_VERSION)."
+  fi
+else
+  echo "pip is not installed. Please install pip first."
+fi
+
+{{ end -}}

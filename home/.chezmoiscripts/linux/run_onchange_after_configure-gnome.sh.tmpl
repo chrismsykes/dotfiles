@@ -1,0 +1,69 @@
+{{ if (and (not .ephemeral) (not .headless)) -}}
+#!/bin/bash
+
+set -eufo pipefail
+
+# Refresh font cache
+fc-cache
+
+# Set natural scroll to false if not already set
+current_natural_scroll=$(gsettings get org.gnome.desktop.peripherals.touchpad natural-scroll)
+if [ "$current_natural_scroll" != "false" ]; then
+  gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
+fi
+
+# Set Terminal menubar visibility to false if not already set
+current_menubar_visibility=$(gsettings get org.gnome.Terminal.Legacy.Settings default-show-menubar)
+if [ "$current_menubar_visibility" != "false" ]; then
+  gsettings set org.gnome.Terminal.Legacy.Settings default-show-menubar false
+fi
+
+# Get the default profile ID for GNOME Terminal
+profile=$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d \')
+
+# Set Terminal font if not already set
+current_font=$(gsettings get org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ font)
+if [ "$current_font" != "'MesloLGS NF'" ]; then
+  gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ font "MesloLGS NF"
+fi
+
+# Set Terminal preserve-working-directory if not already set
+current_preserve_directory=$(gsettings get org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ preserve-working-directory)
+if [ "$current_preserve_directory" != "never" ]; then
+  gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ preserve-working-directory never
+fi
+
+# Create a list of favorite apps dynamically
+favorite_apps="['org.gnome.Terminal.desktop', 'org.gnome.Nautilus.desktop'"
+
+{{ if lookPath "google-chrome" -}}
+favorite_apps="${favorite_apps}, 'google-chrome.desktop'"
+{{ end -}}
+{{ if lookPath "code" -}}
+favorite_apps="${favorite_apps}, 'code_code.desktop'"
+{{ end -}}
+{{ if lookPath "qgis" -}}
+favorite_apps="${favorite_apps}, 'org.qgis.qgis.desktop'"
+{{ end -}}
+{{ if lookPath "google-earth-pro" -}}
+favorite_apps="${favorite_apps}, 'google-earth-pro.desktop'"
+{{ end -}}
+{{ if lookPath "virtualbox" -}}
+favorite_apps="${favorite_apps}, 'virtualbox.desktop'"
+{{ end -}}
+
+favorite_apps="${favorite_apps}]"
+
+# Set favorite apps if not already set
+current_favorite_apps=$(gsettings get org.gnome.shell favorite-apps)
+if [ "$current_favorite_apps" != "$favorite_apps" ]; then
+  gsettings set org.gnome.shell favorite-apps "$favorite_apps"
+fi
+
+# Disable switch-monitor keybinding if not already disabled
+current_switch_monitor=$(gsettings get org.gnome.mutter.keybindings switch-monitor)
+if [ "$current_switch_monitor" != "@as []" ]; then
+  gsettings set org.gnome.mutter.keybindings switch-monitor "[]"
+fi
+
+{{ end -}}

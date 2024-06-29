@@ -1,0 +1,38 @@
+{{ if or (eq .osid "linux-pop") (eq .osid "linux-ubuntu") -}}
+
+#!/bin/sh
+
+set -eufo pipefail
+
+# Function to get the current installed version of lazygit
+get_installed_version() {
+  if command -v lazygit &> /dev/null; then
+    lazygit --version | grep -Po 'version \K.*'
+  else
+    echo "none"
+  fi
+}
+
+# Get the latest version from GitHub API
+LATEST_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+
+# Get the installed version of lazygit
+INSTALLED_VERSION=$(get_installed_version)
+
+{{ $sudo := "sudo " -}}
+{{ if eq .chezmoi.username "root" -}}
+{{   $sudo = "" -}}
+{{ end -}}
+
+# Compare versions and install if necessary
+if [ "$INSTALLED_VERSION" != "$LATEST_VERSION" ]; then
+  echo "Installing lazygit version $LATEST_VERSION..."
+  curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LATEST_VERSION}_Linux_x86_64.tar.gz"
+  tar xf lazygit.tar.gz lazygit
+  {{ $sudo }}install lazygit /usr/local/bin
+  rm -f lazygit.tar.gz lazygit
+else
+  echo "lazygit is already up to date (version $INSTALLED_VERSION)."
+fi
+
+{{ end -}}

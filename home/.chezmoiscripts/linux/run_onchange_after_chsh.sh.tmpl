@@ -1,0 +1,13 @@
+{{- if (not .ephemeral) -}}
+#!/bin/bash
+
+set -eufo pipefail
+
+# Get the current shell of the user
+current_shell=$(getent passwd $USER | cut -d: -f7)
+
+# Change shell to zsh if it's not already set
+if [ "$current_shell" != "/usr/bin/zsh" ]; then
+  chsh -s /usr/bin/zsh
+fi
+{{ end -}}

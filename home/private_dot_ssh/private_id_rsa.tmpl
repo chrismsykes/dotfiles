@@ -1,0 +1,3 @@
+{{- if .personal -}}
+{{-   bw get item domainlogin --raw --session $BW_SESSION | jq -r '.fields[] | select(.name == "privatekey") | .value' -}}
+{{- end -}}

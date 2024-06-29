@@ -1,0 +1,22 @@
+{{ if or (eq .osid "linux-pop") (eq .osid "linux-ubuntu") -}}
+
+#!/bin/sh
+
+# https://github.com/junegunn/fzf
+
+if [ ! -d "$HOME/.fzf" ]; then
+  echo "Cloning fzf repository..."
+  git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+else
+  echo "Updating fzf repository..."
+  git -C ~/.fzf pull
+fi
+
+if [ -f "$HOME/.fzf/install" ]; then
+  echo "Running fzf install script..."
+  ~/.fzf/install --all
+else
+  echo "fzf install script not found."
+fi
+
+{{ end -}}

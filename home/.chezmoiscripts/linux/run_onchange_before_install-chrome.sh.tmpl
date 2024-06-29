@@ -1,0 +1,35 @@
+{{ if and (eq .chezmoi.arch "amd64") (not .headless) (not .ephemeral) -}}
+
+#!/bin/sh
+
+# Function to compare installed and latest version
+version_gt() {
+  test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1";
+}
+
+# Get the installed version of Google Chrome if it exists
+INSTALLED_VERSION=$(dpkg -l | grep google-chrome-stable | awk '{print $3}')
+
+# Download the latest version of Google Chrome
+wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O google-chrome-stable_current_amd64.deb
+
+# Get the version of the downloaded package
+LATEST_VERSION=$(dpkg-deb -f google-chrome-stable_current_amd64.deb Version)
+
+{{ $sudo := "sudo " -}}
+{{ if eq .chezmoi.username "root" -}}
+{{   $sudo = "" -}}
+{{ end -}}
+
+# Compare versions and install/upgrade if necessary
+if [ -z "$INSTALLED_VERSION" ] || version_gt "$LATEST_VERSION" "$INSTALLED_VERSION"; then
+  echo "Installing or upgrading Google Chrome to version $LATEST_VERSION..."
+  {{ $sudo }}apt install -y ./google-chrome-stable_current_amd64.deb
+else
+  echo "Google Chrome is already up to date (version $INSTALLED_VERSION)."
+fi
+
+# Clean up
+rm -rf google-chrome-stable_current_amd64.deb
+
+{{ end -}}

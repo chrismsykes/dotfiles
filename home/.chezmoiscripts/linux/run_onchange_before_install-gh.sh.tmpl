@@ -1,0 +1,40 @@
+{{ if and (or (eq .osid "linux-pop") (eq .osid "linux-ubuntu")) (not .ephemeral) -}}
+
+#!/bin/sh
+
+# https://github.com/cli/cli/blob/trunk/docs/install_linux.md
+
+# Check if the keyring file exists
+if [ ! -f /etc/apt/trusted.gpg.d/githubcli-archive-keyring.gpg ]; then
+  echo "Adding GitHub CLI keyring..."
+  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/etc/apt/trusted.gpg.d/githubcli-archive-keyring.gpg
+else
+  echo "GitHub CLI keyring already exists."
+fi
+
+# Check if the source list file exists
+if [ ! -f /etc/apt/sources.list.d/github-cli.list ]; then
+  echo "Adding GitHub CLI repository..."
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+else
+  echo "GitHub CLI repository already exists."
+fi
+
+{{ $sudo := "sudo " -}}
+{{ if eq .chezmoi.username "root" -}}
+{{   $sudo = "" -}}
+{{ end -}}
+
+
+# Update package lists
+{{ $sudo }}apt update
+
+# Check if gh is already installed
+if ! dpkg -s gh &> /dev/null; then
+  echo "Installing GitHub CLI..."
+  {{ $sudo }}apt install -y gh
+else
+  echo "GitHub CLI is already installed."
+fi
+
+{{ end -}}

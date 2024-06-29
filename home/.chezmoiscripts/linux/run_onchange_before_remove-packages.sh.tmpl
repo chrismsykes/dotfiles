@@ -1,0 +1,52 @@
+{{ if eq .osid "linux-ubuntu" -}}
+
+{{ $packages := list
+     "aisleriot"
+     "gnome-mahjongg"
+     "gnome-mines"
+     "gnome-sudoku"
+     "thunderbird" -}}
+{{ $snaps := list "firefox" -}}
+
+{{ $sudo := "sudo " -}}
+{{ if eq .chezmoi.username "root" -}}
+{{   $sudo = "" -}}
+{{ end -}}
+
+#!/bin/bash
+
+set -eufo pipefail
+
+# Function to check if a package is installed
+is_installed() {
+  dpkg -l "$1" &> /dev/null
+}
+
+# Remove packages if they are installed
+for package in {{ $packages | join " " }}; do
+  if is_installed "$package"; then
+    echo "Removing package: $package"
+    {{ $sudo }}apt-get remove -y "$package"
+  else
+    echo "Package $package is not installed"
+  fi
+done
+
+# Function to check if a snap is installed
+is_snap_installed() {
+  snap list "$1" &> /dev/null
+}
+
+# Remove snaps if they are installed
+if command -v snap &> /dev/null; then
+  for snap in {{ $snaps | join " " }}; do
+    if is_snap_installed "$snap"; then
+      echo "Removing snap: $snap"
+      {{ $sudo }}snap remove "$snap"
+    else
+      echo "Snap $snap is not installed"
+    fi
+  done
+fi
+
+{{ end -}}

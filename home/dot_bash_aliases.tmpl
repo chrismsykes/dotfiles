@@ -1,0 +1,8 @@
+{{- if and (not (eq .chezmoi.os "darwin")) .ephemeral -}}
+alias g=git
+alias gnp="git --no-pager"
+alias v=nvim
+alias vi=nvim
+alias vim=nvim
+{{ end -}}
+{{/* vim: set filetype=bash: */}}

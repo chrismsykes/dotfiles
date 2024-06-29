@@ -1,0 +1,59 @@
+{{ if or (eq .osid "linux-pop") (eq .osid "linux-ubuntu") -}}
+
+#!/bin/sh
+
+set -eufo pipefail
+
+{{ $sudo := "sudo " -}}
+{{ if eq .chezmoi.username "root" -}}
+{{   $sudo = "" -}}
+{{ end -}}
+
+# Function to check if npm is installed
+is_npm_installed() {
+  command -v npm &> /dev/null
+}
+
+# Function to check if n is installed
+is_n_installed() {
+  command -v n &> /dev/null
+}
+
+# Function to get the currently installed Node.js version
+get_installed_node_version() {
+  if command -v node &> /dev/null; then
+    node -v | tr -d 'v'
+  else
+    echo "none"
+  fi
+}
+
+# Function to get the latest stable Node.js version
+get_latest_stable_node_version() {
+  curl -sL https://nodejs.org/dist/index.json | grep -m 1 'version' | grep -Po 'v\K[^\"]+'
+}
+
+# Ensure npm is installed
+if is_npm_installed; then
+  {{ $sudo }}npm cache clean -f
+
+  # Ensure n is installed
+  if ! is_n_installed; then
+    {{ $sudo }}npm install -g n
+  fi
+
+  # Get the currently installed and latest stable Node.js versions
+  INSTALLED_NODE_VERSION=$(get_installed_node_version)
+  LATEST_STABLE_NODE_VERSION=$(get_latest_stable_node_version)
+
+  # Compare and install the latest stable Node.js version if necessary
+  if [ "$INSTALLED_NODE_VERSION" != "$LATEST_STABLE_NODE_VERSION" ]; then
+    {{ $sudo }}n stable
+  else
+    echo "Node.js is already at the latest stable version ($INSTALLED_NODE_VERSION)."
+  fi
+else
+  echo "npm is not installed. Please install npm first."
+fi
+
+{{ end -}}

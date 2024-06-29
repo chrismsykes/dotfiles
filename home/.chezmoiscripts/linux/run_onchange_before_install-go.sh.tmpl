@@ -1,0 +1,29 @@
+{{- if and (or (eq .osid "linux-pop") (eq .osid "linux-ubuntu")) (not .ephemeral) }}
+
+#!/bin/sh
+
+# Check if the PPA is already added
+if ! grep -q "^deb .*$longsleep/golang-backports" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+  echo "Adding Golang backports PPA..."
+  sudo add-apt-repository -y ppa:longsleep/golang-backports
+else
+  echo "Golang backports PPA already added."
+fi
+
+{{ $sudo := "sudo " -}}
+{{ if eq .chezmoi.username "root" -}}
+{{   $sudo = "" -}}
+{{ end -}}
+
+# Update package lists
+{{ $sudo }}apt-get update
+
+# Check if Golang is already installed
+if ! dpkg -s golang &> /dev/null; then
+  echo "Installing Golang..."
+  {{ $sudo }}apt-get install -y golang
+else
+  echo "Golang is already installed."
+fi
+
+{{- end }}
