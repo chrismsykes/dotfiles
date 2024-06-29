@@ -1,3 +1,9 @@
-{{- if .personal -}}
-{{-   bw get item domainlogin --raw --session $BW_SESSION | jq -r '.fields[] | select(.name == "privatekey") | .value' -}}
-{{- end -}}
+{{ if .personal -}}
+{{ $bwSession := getenv "BW_SESSION" -}}
+{{ if not $bwSession }}
+{{   fail "BW_SESSION environment variable is not set" -}}
+{{ end -}}
+
+{{ $privateKey := exec "bw" "get" "item" "domainlogin" "--raw" "--session" $bwSession | exec "jq" "-r" ".fields[] | select(.name == \"privatekey\") | .value" -}}
+{{ $privateKey }}
+{{ end -}}
