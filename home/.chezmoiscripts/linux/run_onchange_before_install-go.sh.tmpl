@@ -1,6 +1,8 @@
-{{- if and (or (eq .osid "linux-pop") (eq .osid "linux-ubuntu")) (not .ephemeral) }}
+{{- if and (or (eq .osid "linux-pop") (eq .osid "linux-ubuntu")) (not .ephemeral) -}}
 
 #!/bin/sh
+
+set -eufo pipefail
 
 # Check if the PPA is already added
 if ! grep -q "^deb .*$longsleep/golang-backports" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
@@ -12,7 +14,7 @@ fi
 
 {{ $sudo := "sudo " -}}
 {{ if eq .chezmoi.username "root" -}}
-{{   $sudo = "" -}}
+{{ $sudo = "" -}}
 {{ end -}}
 
 # Update package lists
