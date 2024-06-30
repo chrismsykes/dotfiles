@@ -14,7 +14,7 @@ fi
 
 if [ -f "$HOME/.fzf/install" ]; then
   echo "Running fzf install script..."
-  ~/.fzf/install --all
+  no | ~/.fzf/install --all --no-update-rc
 else
   echo "fzf install script not found."
 fi

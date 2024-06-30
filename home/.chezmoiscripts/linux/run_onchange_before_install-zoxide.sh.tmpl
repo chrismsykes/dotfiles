@@ -1,0 +1,11 @@
+{{ if or (eq .osid "linux-pop") (eq .osid "linux-ubuntu") -}}
+
+#!/bin/sh
+
+# Install zoxide
+# https://github.com/ajeetdsouza/zoxide
+
+echo "Installing zoxide..."
+curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+
+{{ end -}}

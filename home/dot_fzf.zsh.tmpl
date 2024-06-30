@@ -1,0 +1,7 @@
+# Setup fzf
+# ---------
+if [[ ! "$PATH" == *{{ .chezmoi.homeDir }}/.fzf/bin* ]]; then
+  PATH="${PATH:+${PATH}:}{{ .chezmoi.homeDir }}/.fzf/bin"
+fi
+
+source <(fzf --zsh)
