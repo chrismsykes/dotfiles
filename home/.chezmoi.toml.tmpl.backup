@@ -78,6 +78,7 @@
         "vi-mode",
         "virtualenv",
         "you-should-use",
+        "zoxide",
         "zsh-autosuggestions",
         "zsh-syntax-highlighting",
     ]
