@@ -30,24 +30,32 @@ get_installed_node_version() {
 
 # Function to get the latest stable Node.js version
 get_latest_stable_node_version() {
-  curl -sL https://nodejs.org/dist/index.json | grep -m 1 'version' | grep -Po 'v\K[^\"]+'
+  curl -sL https://nodejs.org/dist/index.json | jq -r '[.[] | select(.lts != false)] | .[0].version' | tr -d 'v'
 }
 
 # Ensure npm is installed
 if is_npm_installed; then
+  echo "npm is installed."
   {{ $sudo }}npm cache clean -f
 
   # Ensure n is installed
   if ! is_n_installed; then
+    echo "Installing n..."
     {{ $sudo }}npm install -g n
+  else
+    echo "n is already installed."
   fi
 
   # Get the currently installed and latest stable Node.js versions
   INSTALLED_NODE_VERSION=$(get_installed_node_version)
   LATEST_STABLE_NODE_VERSION=$(get_latest_stable_node_version)
 
+  echo "Installed Node.js version: $INSTALLED_NODE_VERSION"
+  echo "Latest stable Node.js version: $LATEST_STABLE_NODE_VERSION"
+
   # Compare and install the latest stable Node.js version if necessary
   if [ "$INSTALLED_NODE_VERSION" != "$LATEST_STABLE_NODE_VERSION" ]; then
+    echo "Updating Node.js to the latest stable version..."
     {{ $sudo }}n stable
   else
     echo "Node.js is already at the latest stable version ($INSTALLED_NODE_VERSION)."
