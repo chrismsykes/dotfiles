@@ -1,7 +1,9 @@
 {{ if and (eq .chezmoi.arch "amd64") (not .headless) (not .ephemeral) -}}
 
 #!/bin/bash
-export DEBIAN_FRONTEND=noninteractive
+echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections
+echo "debconf debconf/priority select critical" | sudo debconf-set-selections
+echo "needrestart needrestart/enable_notification boolean false" | sudo debconf-set-selections
 
 # Function to compare installed and latest version
 version_gt() {

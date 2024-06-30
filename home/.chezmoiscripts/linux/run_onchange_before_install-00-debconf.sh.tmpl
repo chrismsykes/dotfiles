@@ -1,0 +1,18 @@
+{{ if eq .osid "linux-debian" "linux-raspbian" "linux-ubuntu" -}}
+#!/bin/bash
+
+# Set debconf selections to noninteractive mode
+echo "Setting debconf to noninteractive mode..."
+
+# Set debconf frontend to noninteractive
+echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections
+
+# Set debconf priority to critical
+echo "debconf debconf/priority select critical" | sudo debconf-set-selections
+
+# Disable notifications for restarting services that use outdated libraries
+echo "needrestart needrestart/enable_notification boolean false" | sudo debconf-set-selections
+
+echo "Debconf settings applied."
+
+{{ end -}}
