@@ -1,6 +1,7 @@
 {{ if and (eq .chezmoi.arch "amd64") (not .headless) (not .ephemeral) -}}
 
 #!/bin/bash
+export DEBIAN_FRONTEND=noninteractive
 
 # Function to compare installed and latest version
 version_gt() {

@@ -1,5 +1,6 @@
 {{ if (and (not .ephemeral) (not .headless)) -}}
 #!/bin/bash
+export DEBIAN_FRONTEND=noninteractive
 
 set -eufo pipefail
 
