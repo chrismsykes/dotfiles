@@ -1,3 +1,3 @@
 {{ if .personal -}}
-{{ (bitwardenFields "privatekey" "domainlogin").token.value }}
+{{ (bitwarden "get" "item" "domainlogin" "--raw" "--session" .BW_SESSION | bitwarden "jq" "-r" ".fields[] | select(.name == \"privatekey\") | .value") }}
 {{ end -}}
