@@ -1,0 +1,34 @@
+{{ if or (eq .osid "linux-pop") (eq .osid "linux-ubuntu") -}}
+
+#!/bin/bash
+
+set -eufo pipefail
+
+# Define the PPA URL
+PPA_URL="ppa:zhangsongcui3371/fastfetch"
+
+# Check if the PPA is already added
+if ! grep -q "^deb .*$PPA_URL" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+  echo "Adding Fastfetch PPA..."
+  sudo add-apt-repository -y $PPA_URL
+else
+  echo "Fastfetch PPA already added."
+fi
+
+{{ $sudo := "sudo " -}}
+{{ if eq .chezmoi.username "root" -}}
+{{ $sudo = "" -}}
+{{ end -}}
+
+# Update package lists
+{{ $sudo }}apt-get update
+
+# Check if fastfetch is already installed
+if ! dpkg -s fastfetch &> /dev/null; then
+  echo "Installing Fastfetch..."
+  {{ $sudo }}apt-get install -y fastfetch
+else
+  echo "Fastfetch is already installed."
+fi
+
+{{- end }}
