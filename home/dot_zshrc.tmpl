@@ -47,8 +47,10 @@ alias cat=batcat
 {{- if lookPath "fdfind" }}
 alias fd=fdfind
 {{- end }}
-{{- if lookPath "eza" }}
-alias ls=eza
+{{- if lookPath "nvim }}
+alias v=nvim
+alias vi=nvim
+alias vim=nvim
 {{- end }}
 
 {{ if eq .osid "linux-ubuntu" -}}
