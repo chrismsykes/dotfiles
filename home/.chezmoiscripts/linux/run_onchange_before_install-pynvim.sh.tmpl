@@ -9,14 +9,38 @@ is_pip_installed() {
   command -v pip &> /dev/null
 }
 
+# Function to check if virtualenv is installed
+is_virtualenv_installed() {
+  command -v virtualenv &> /dev/null
+}
+
 # Function to get the installed version of a package
 get_installed_version() {
   pip show "$1" | grep -Po 'Version: \K.*'
 }
 
 PACKAGE="pynvim"
+# Specify the directory for the virtual environment
+VENV_DIR="$HOME/.virtualenvs/myenv"
 
-# Ensure pip is installed
+# Ensure virtualenv is installed system-wide
+if ! is_virtualenv_installed; then
+  echo "Installing virtualenv system-wide..."
+  sudo apt update
+  sudo apt install -y python3-virtualenv
+fi
+
+# Create virtual environment if it does not exist
+if [ ! -d "$VENV_DIR" ]; then
+  echo "Creating virtual environment in $VENV_DIR..."
+  mkdir -p "$VENV_DIR"
+  python3 -m virtualenv "$VENV_DIR"
+fi
+
+# Activate virtual environment
+source "$VENV_DIR/bin/activate"
+
+# Ensure pip is installed in the virtual environment
 if is_pip_installed; then
   INSTALLED_VERSION=$(get_installed_version "$PACKAGE" || echo "none")
 
@@ -31,7 +55,10 @@ if is_pip_installed; then
     echo "$PACKAGE is already at the latest stable version ($INSTALLED_VERSION)."
   fi
 else
-  echo "pip is not installed. Please install pip first."
+  echo "pip is not installed in the virtual environment. Please check the virtual environment setup."
 fi
+
+# Deactivate virtual environment
+deactivate
 
 {{ end -}}
