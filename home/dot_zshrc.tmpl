@@ -47,11 +47,9 @@ alias cat=batcat
 {{- if lookPath "fdfind" }}
 alias fd=fdfind
 {{- end }}
-{{- if lookPath "nvim" }}
 alias v=nvim
 alias vi=nvim
 alias vim=nvim
-{{- end }}
 
 {{ if eq .osid "linux-ubuntu" -}}
 export EDITOR=$HOME/.local/bin/nvim
