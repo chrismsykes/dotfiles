@@ -2,10 +2,32 @@
 
 #!/bin/sh
 
-# Install zoxide
-# https://github.com/ajeetdsouza/zoxide
+set -eufo pipefail
+
+# Define color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Spinner function
+spinner() {
+    local pid=$!
+    local delay=0.1
+    local spinstr='|/-\'
+    echo -ne "${GREEN}"
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b\b"
+    done
+    echo -ne "${NC}"
+}
 
 echo "Installing zoxide..."
-curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash & spinner
+wait $!
+
+echo -e "${GREEN}zoxide installed successfully.${NC}"
 
 {{ end -}}

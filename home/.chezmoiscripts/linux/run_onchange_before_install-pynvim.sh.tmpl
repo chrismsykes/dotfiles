@@ -4,6 +4,26 @@
 
 set -eufo pipefail
 
+# Define color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Spinner function
+spinner() {
+    local pid=$!
+    local delay=0.1
+    local spinstr='|/-\'
+    echo -ne "${GREEN}"
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b\b"
+    done
+    echo -ne "${NC}"
+}
+
 # Function to check if pip is installed
 is_pip_installed() {
   command -v pip &> /dev/null
@@ -26,15 +46,20 @@ VENV_DIR="$HOME/.virtualenvs/myenv"
 # Ensure virtualenv is installed system-wide
 if ! is_virtualenv_installed; then
   echo "Installing virtualenv system-wide..."
-  sudo apt update
-  sudo apt install -y python3-virtualenv
+  sudo apt update > /dev/null 2>&1 & spinner
+  wait $!
+  sudo apt install -y python3-virtualenv > /dev/null 2>&1 & spinner
+  wait $!
+  echo -e "${GREEN}virtualenv installed successfully.${NC}"
 fi
 
 # Create virtual environment if it does not exist
 if [ ! -d "$VENV_DIR" ]; then
   echo "Creating virtual environment in $VENV_DIR..."
   mkdir -p "$VENV_DIR"
-  python3 -m virtualenv "$VENV_DIR"
+  python3 -m virtualenv "$VENV_DIR" > /dev/null 2>&1 & spinner
+  wait $!
+  echo -e "${GREEN}Virtual environment created successfully in $VENV_DIR.${NC}"
 fi
 
 # Activate virtual environment
@@ -46,13 +71,14 @@ if is_pip_installed; then
 
   # Install or update to the latest stable version
   echo "Checking for the latest stable version of $PACKAGE..."
-  pip install --upgrade "$PACKAGE"
+  pip install --upgrade "$PACKAGE" > /dev/null 2>&1 & spinner
+  wait $!
 
   NEW_VERSION=$(get_installed_version "$PACKAGE")
   if [ "$INSTALLED_VERSION" != "$NEW_VERSION" ]; then
-    echo "$PACKAGE updated to version $NEW_VERSION."
+    echo -e "${GREEN}$PACKAGE updated to version $NEW_VERSION.${NC}"
   else
-    echo "$PACKAGE is already at the latest stable version ($INSTALLED_VERSION)."
+    echo "${GREEN}$PACKAGE is already at the latest stable version ($INSTALLED_VERSION).${NC}"
   fi
 else
   echo "pip is not installed in the virtual environment. Please check the virtual environment setup."

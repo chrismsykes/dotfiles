@@ -1,9 +1,28 @@
 {{ if and (or (eq .osid "linux-pop") (eq .osid "linux-ubuntu")) (not .ephemeral) -}}
 
 #!/bin/sh
-export DEBIAN_FRONTEND=noninteractive
 
-# https://github.com/cli/cli/blob/trunk/docs/install_linux.md
+set -eufo pipefail
+
+# Define color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Spinner function
+spinner() {
+    local pid=$!
+    local delay=0.1
+    local spinstr='|/-\'
+    echo -ne "${GREEN}"
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b\b"
+    done
+    echo -ne "${NC}"
+}
 
 # Check if the keyring file exists
 if [ ! -f /etc/apt/trusted.gpg.d/githubcli-archive-keyring.gpg ]; then
@@ -26,14 +45,16 @@ fi
 {{   $sudo = "" -}}
 {{ end -}}
 
-
 # Update package lists
-{{ $sudo }}apt update
+echo -e "Updating package lists..."
+{{ $sudo }}apt update > /dev/null 2>&1 & spinner
 
 # Check if gh is already installed
 if ! dpkg -s gh &> /dev/null; then
   echo "Installing GitHub CLI..."
-  {{ $sudo }}apt install -y gh
+  {{ $sudo }}apt install -y gh > /dev/null 2>&1 & spinner
+  wait $!
+  echo -e "${GREEN}GitHub CLI installed successfully.${NC}"
 else
   echo "GitHub CLI is already installed."
 fi

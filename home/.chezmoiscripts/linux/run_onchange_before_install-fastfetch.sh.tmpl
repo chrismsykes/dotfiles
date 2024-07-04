@@ -4,11 +4,31 @@
 
 set -eufo pipefail
 
+# Define color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Spinner function
+spinner() {
+    local pid=$!
+    local delay=0.1
+    local spinstr='|/-\'
+    echo -ne "${GREEN}"
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b\b"
+    done
+    echo -ne "${NC}"
+}
+
 # Define the PPA URL
 PPA_URL="ppa:zhangsongcui3371/fastfetch"
 
 # Check if the PPA is already added
-if ! grep -q "^deb .*$PPA_URL" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+if ! grep -Rq "^deb .*$PPA_URL" /etc/apt/sources.list $(ls /etc/apt/sources.list.d/* 2>/dev/null || echo "/dev/null"); then
   echo "Adding Fastfetch PPA..."
   sudo add-apt-repository -y $PPA_URL
 else
@@ -21,14 +41,17 @@ fi
 {{ end -}}
 
 # Update package lists
-{{ $sudo }}apt-get update
+echo -e "Updating package lists..."
+{{ $sudo }}apt-get update > /dev/null 2>&1 & spinner
 
 # Check if fastfetch is already installed
 if ! dpkg -s fastfetch &> /dev/null; then
   echo "Installing Fastfetch..."
-  {{ $sudo }}apt-get install -y fastfetch
+  {{ $sudo }}apt-get install -y fastfetch > /dev/null 2>&1 & spinner
+  wait $!
+  echo -e "${GREEN}Fastfetch installed successfully.${NC}"
 else
-  echo "Fastfetch is already installed."
+  echo "${GREEN}Fastfetch is already installed.${NC}"
 fi
 
 {{- end }}

@@ -17,6 +17,26 @@
 
 set -eufo pipefail
 
+# Define color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Spinner function
+spinner() {
+    local pid=$!
+    local delay=0.1
+    local spinstr='|/-\'
+    echo -ne "${GREEN}"
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b\b"
+    done
+    echo -ne "${NC}"
+}
+
 # Function to check if a package is installed
 is_installed() {
   dpkg -l "$1" &> /dev/null
@@ -26,7 +46,9 @@ is_installed() {
 for package in {{ $packages | join " " }}; do
   if is_installed "$package"; then
     echo "Removing package: $package"
-    {{ $sudo }}apt-get remove -y "$package"
+    {{ $sudo }}apt-get remove -y "$package" > /dev/null 2>&1 & spinner
+    wait $!
+    echo -e "${GREEN}Package $package removed successfully.${NC}"
   else
     echo "Package $package is not installed"
   fi
@@ -42,7 +64,9 @@ if command -v snap &> /dev/null; then
   for snap in {{ $snaps | join " " }}; do
     if is_snap_installed "$snap"; then
       echo "Removing snap: $snap"
-      {{ $sudo }}snap remove "$snap"
+      {{ $sudo }}snap remove "$snap" > /dev/null 2>&1 & spinner
+      wait $!
+      echo -e "${GREEN}Snap $snap removed successfully.${NC}"
     else
       echo "Snap $snap is not installed"
     fi

@@ -2,8 +2,29 @@
 
 #!/bin/sh
 
-# https://github.com/junegunn/fzf
+set -eufo pipefail
 
+# Define color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Spinner function
+spinner() {
+    local pid=$!
+    local delay=0.1
+    local spinstr='|/-\'
+    echo -ne "${GREEN}"
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b\b"
+    done
+    echo -ne "${NC}"
+}
+
+# Clone or update fzf repository
 if [ ! -d "$HOME/.fzf" ]; then
   echo "Cloning fzf repository..."
   git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
@@ -12,11 +33,25 @@ else
   git -C ~/.fzf pull
 fi
 
+# Run the fzf install script
 if [ -f "$HOME/.fzf/install" ]; then
   echo "Running fzf install script..."
-  no | ~/.fzf/install --all --no-update-rc
+  yes n | ~/.fzf/install --all --no-update-rc & spinner
+  wait $!
+  echo -e "${GREEN}fzf installed successfully.${NC}"
 else
   echo "fzf install script not found."
+fi
+
+# Ensure fzf is in the PATH
+if ! command -v fzf > /dev/null; then
+  if [ -f "$HOME/.fzf/bin/fzf" ]; then
+    echo 'export PATH="$HOME/.fzf/bin:$PATH"' >> "$HOME/.zshrc"
+    echo 'export PATH="$HOME/.fzf/bin:$PATH"' >> "$HOME/.bashrc"
+    export PATH="$HOME/.fzf/bin:$PATH"
+  else
+    echo "fzf binary not found."
+  fi
 fi
 
 {{ end -}}

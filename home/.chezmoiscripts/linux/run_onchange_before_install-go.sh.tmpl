@@ -1,14 +1,34 @@
-{{- if and (or (eq .osid "linux-pop") (eq .osid "linux-ubuntu")) (not .ephemeral) -}}
+{{ if and (or (eq .osid "linux-pop") (eq .osid "linux-ubuntu")) (not .ephemeral) -}}
 
 #!/bin/bash
 
 set -eufo pipefail
 
+# Define color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Spinner function
+spinner() {
+    local pid=$!
+    local delay=0.1
+    local spinstr='|/-\'
+    echo -ne "${GREEN}"
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b\b"
+    done
+    echo -ne "${NC}"
+}
+
 # Define the PPA URL
 PPA_URL="ppa:longsleep/golang-backports"
 
 # Check if the PPA is already added
-if ! grep -q "^deb .*$PPA_URL" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+if ! grep -q "^deb .*$PPA_URL" /etc/apt/sources.list /etc/apt/sources.list.d/* 2> /dev/null; then
   echo "Adding Golang backports PPA..."
   sudo add-apt-repository -y $PPA_URL
 else
@@ -21,14 +41,17 @@ fi
 {{ end -}}
 
 # Update package lists
-{{ $sudo }}apt-get update
+echo -e "Updating package lists..."
+{{ $sudo }}apt-get update > /dev/null 2>&1 & spinner
 
 # Check if Golang is already installed
 if ! dpkg -s golang &> /dev/null; then
   echo "Installing Golang..."
-  {{ $sudo }}apt-get install -y golang
+  {{ $sudo }}apt-get install -y golang > /dev/null 2>&1 & spinner
+  wait $!
+  echo -e "${GREEN}Golang installed successfully.${NC}"
 else
   echo "Golang is already installed."
 fi
 
-{{- end }}
+{{ end -}}

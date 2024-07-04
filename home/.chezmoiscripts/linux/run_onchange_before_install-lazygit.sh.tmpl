@@ -4,6 +4,26 @@
 
 set -eufo pipefail
 
+# Define color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Spinner function
+spinner() {
+    local pid=$!
+    local delay=0.1
+    local spinstr='|/-\'
+    echo -ne "${GREEN}"
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b\b"
+    done
+    echo -ne "${NC}"
+}
+
 # Function to get the current installed version of lazygit
 get_installed_version() {
   if command -v lazygit &> /dev/null; then
@@ -14,6 +34,7 @@ get_installed_version() {
 }
 
 # Get the latest version from GitHub API
+echo -e "Fetching latest lazygit version..."
 LATEST_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
 
 # Get the installed version of lazygit
@@ -27,10 +48,12 @@ INSTALLED_VERSION=$(get_installed_version)
 # Compare versions and install if necessary
 if [ "$INSTALLED_VERSION" != "$LATEST_VERSION" ]; then
   echo "Installing lazygit version $LATEST_VERSION..."
-  curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LATEST_VERSION}_Linux_x86_64.tar.gz"
+  curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LATEST_VERSION}_Linux_x86_64.tar.gz" & spinner
+  wait $!
   tar xf lazygit.tar.gz lazygit
   {{ $sudo }}install lazygit /usr/local/bin
   rm -f lazygit.tar.gz lazygit
+  echo -e "${GREEN}lazygit installed successfully.${NC}"
 else
   echo "lazygit is already up to date (version $INSTALLED_VERSION)."
 fi

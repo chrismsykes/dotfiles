@@ -4,6 +4,26 @@
 
 set -eufo pipefail
 
+# Define color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Spinner function
+spinner() {
+    local pid=$!
+    local delay=0.1
+    local spinstr='|/-\'
+    echo -ne "${GREEN}"
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b\b"
+    done
+    echo -ne "${NC}"
+}
+
 {{ $sudo := "sudo " -}}
 {{ if eq .chezmoi.username "root" -}}
 {{   $sudo = "" -}}
@@ -23,8 +43,6 @@ is_n_installed() {
 get_installed_node_version() {
   if command -v node &> /dev/null; then
     node -v | tr -d 'v'
-  else
-    echo "none"
   fi
 }
 
@@ -35,15 +53,14 @@ get_latest_stable_node_version() {
 
 # Ensure npm is installed
 if is_npm_installed; then
-  echo "npm is installed."
   {{ $sudo }}npm cache clean -f
 
   # Ensure n is installed
   if ! is_n_installed; then
     echo "Installing n..."
-    {{ $sudo }}npm install -g n
-  else
-    echo "n is already installed."
+    {{ $sudo }}npm install -g n > /dev/null 2>&1 & spinner
+    wait $!
+    echo "${GREEN}n installed successfully.${NC}"
   fi
 
   # Get the currently installed and latest stable Node.js versions
@@ -56,9 +73,11 @@ if is_npm_installed; then
   # Compare and install the latest stable Node.js version if necessary
   if [ "$INSTALLED_NODE_VERSION" != "$LATEST_STABLE_NODE_VERSION" ]; then
     echo "Updating Node.js to the latest stable version..."
-    {{ $sudo }}n stable
+    {{ $sudo }}n stable > /dev/null 2>&1 & spinner
+    wait $!
+    echo -e "${GREEN}Node.js updated to version $LATEST_STABLE_NODE_VERSION.${NC}"
   else
-    echo "Node.js is already at the latest stable version ($INSTALLED_NODE_VERSION)."
+    echo "${GREEN}Node.js is already at the latest stable version ($INSTALLED_NODE_VERSION).${NC}"
   fi
 else
   echo "npm is not installed. Please install npm first."
