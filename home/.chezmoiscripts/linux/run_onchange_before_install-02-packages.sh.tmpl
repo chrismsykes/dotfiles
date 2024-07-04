@@ -17,8 +17,8 @@
      "ripgrep"
      "shellcheck"
      "units"
-     "zsh"
-     "pv" -}}
+     "zsh" -}}
+
 {{ $snaps := list -}}
 {{ $classicSnaps := list -}}
 
@@ -49,21 +49,29 @@ set -eufo pipefail
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-# Progress bar function
-show_progress() {
-  local -r msg=$1
-  local -r cmd=$2
-
-  echo -e "${GREEN}${msg}${NC}"
-  eval "${cmd} 2>&1 | pv -lep -s $(eval ${cmd} 2>&1 | wc -l) >/dev/null"
+# Spinner function
+spinner() {
+  local pid=$1
+  local delay=0.1
+  local spinstr='|/-\'
+  while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+    local temp=${spinstr#?}
+    printf " [%c]  " "$spinstr"
+    spinstr=$temp${spinstr%"$temp"}
+    sleep $delay
+    printf "\b\b\b\b\b\b"
+  done
+  printf "    \b\b\b\b"
 }
 
-# Install packages with minimal output and progress bar
-echo -e "${GREEN}Installing packages from Ubuntu repos...${NC}"
-{{ $sudo }}apt-get update > /dev/null
-show_progress "Installing packages..." "{{ $sudo }}apt-get install -y {{ $packages | join " " }}"
-
-# Display progress
+# Install packages with minimal output and spinner
+echo -e "${GREEN}Pulling packages from package manager using default repos.${NC}"
+echo -e "${GREEN}Updating apt...${NC}"
+{{ $sudo }}apt-get update > /dev/null &
+spinner $!
+echo -e "${GREEN}Installing packages...${NC}"
+{{ $sudo }}apt-get install -y {{ $packages | join " " }} > /dev/null &
+spinner $!
 echo -e "${GREEN}Packages installed successfully.${NC}"
 
 {{ if lookPath "snap" }}
