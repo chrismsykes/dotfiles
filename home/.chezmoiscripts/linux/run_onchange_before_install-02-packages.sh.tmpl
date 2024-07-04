@@ -17,7 +17,8 @@
      "ripgrep"
      "shellcheck"
      "units"
-     "zsh" -}}
+     "zsh"
+     "pv" -}}
 {{ $snaps := list -}}
 {{ $classicSnaps := list -}}
 
@@ -43,18 +44,35 @@
 #!/bin/bash
 
 set -eufo pipefail
-echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections
-echo "debconf debconf/priority select critical" | sudo debconf-set-selections
-echo "needrestart needrestart/enable_notification boolean false" | sudo debconf-set-selections
 
-{{ $sudo }}apt-get update
-{{ $sudo }}apt-get install -y {{ $packages | join " " }}
+# Define color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Progress bar function
+show_progress() {
+  local -r msg=$1
+  local -r cmd=$2
+
+  echo -e "${GREEN}${msg}${NC}"
+  eval "${cmd} 2>&1 | pv -lep -s $(eval ${cmd} 2>&1 | wc -l) >/dev/null"
+}
+
+# Install packages with minimal output and progress bar
+echo -e "${GREEN}Installing packages from Ubuntu repos...${NC}"
+{{ $sudo }}apt-get update > /dev/null
+show_progress "Installing packages..." "{{ $sudo }}apt-get install -y {{ $packages | join " " }}"
+
+# Display progress
+echo -e "${GREEN}Packages installed successfully.${NC}"
 
 {{ if lookPath "snap" }}
 {{   range $snaps }}
+echo -e "${GREEN}Checking and installing snap package: {{ . }}...${NC}"
 ( snap info {{ . }} | grep -q ^installed: ) || {{ $sudo }}snap install {{ . }}
 {{   end }}
 {{   range $classicSnaps }}
+echo -e "${GREEN}Checking and installing classic snap package: {{ . }}...${NC}"
 ( snap info {{ . }} | grep -q ^installed: ) || {{ $sudo }}snap install --classic {{ . }}
 {{   end }}
 {{ end }}
