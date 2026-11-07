@@ -1,0 +1,27 @@
+[tools]
+# Runtimes
+go = "latest"
+node = "lts"
+java = "temurin-21"
+
+# CLI tools
+atuin = "latest"
+fzf = "latest"
+gh = "latest"
+lazygit = "latest"
+zoxide = "latest"
+bat = "latest"
+eza = "latest"
+fd = "latest"
+ripgrep = "latest"
+jq = "latest"
+shellcheck = "latest"
+gdu = "latest"
+neovim = "latest"
+{{- if not .ephemeral }}
+yt-dlp = "latest"
+golangci-lint = "latest"
+{{- end }}
+
+[settings]
+experimental = true

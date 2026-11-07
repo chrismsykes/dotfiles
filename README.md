@@ -1,13 +1,14 @@
-# github.com/twpayne/dotfiles
+# dotfiles
 
-Tom Payne's dotfiles, managed with [`chezmoi`](https://github.com/twpayne/chezmoi).
+My dotfiles, managed with [chezmoi](https://github.com/twpayne/chezmoi).
 
-Install them with:
+## Install
 
-    chezmoi init twpayne
+```sh
+chezmoi init chrismsykes
+```
 
-Personal secrets are stored in [1Password](https://1password.com) and you'll
-need the [1Password CLI](https://developer.1password.com/docs/cli/) installed.
-Login to 1Password with:
+## Dependencies
 
-    eval $(op signin)
+- [1Password CLI](https://developer.1password.com/docs/cli/) for secrets
+- [mise](https://mise.jdx.dev/) for runtime/tool management
