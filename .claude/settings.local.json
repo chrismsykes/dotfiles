@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api:*)",
+      "Bash(chezmoi diff:*)",
+      "Bash(gh repo view:*)",
+      "Bash(git -C /Users/chris/repos/dotfiles status home/dot_config/)",
+      "Bash(git -C /Users/chris/repos/dotfiles status --short)",
+      "Bash(chezmoi data:*)",
+      "Bash(chezmoi git:*)",
+      "Bash(git -C /Users/chris/repos/dotfiles add:*)",
+      "Bash(git -C /Users/chris/repos/dotfiles commit -m \"$\\(cat <<''EOF''\nMigrate to mise for tool management and clean up dotfiles\n\n- Add mise for managing runtimes \\(go, node, java\\) and CLI tools\n  \\(fzf, gh, lazygit, zoxide, bat, eza, fd, ripgrep, jq, etc.\\)\n- Pull nvim config into repo \\(was external reference\\)\n- Add atuin shell history and 1Password SSH agent support\n- Remove VSCode config and extensions \\(moving away from it\\)\n- Clean up darwin packages: remove unused brews/casks\n- Remove redundant Linux install scripts \\(mise handles these\\)\n- Update README with correct repo info\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C /Users/chris/repos/dotfiles status)",
+      "Bash(git -C /Users/chris/repos/dotfiles push)",
+      "Bash(git -C /Users/chris/repos/dotfiles commit -m \"$\\(cat <<''EOF''\nRemove deprecated --no-lock flag from brew bundle\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C /Users/chris/repos/dotfiles commit -m \"$\\(cat <<''EOF''\nMove CLI tools from brew to mise, trim brew packages\n\n- Add age, btop, ffmpeg, git-lfs to mise\n- Remove most brews \\(mise handles them\\)\n- Keep curl \\(OpenSSL version\\) and dockutil in brew\n- Keep essential casks for fresh machine setup\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}

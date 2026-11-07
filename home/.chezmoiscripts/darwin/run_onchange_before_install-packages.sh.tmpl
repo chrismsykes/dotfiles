@@ -3,11 +3,14 @@
 set -eufo pipefail
 
 {{ $brews := list
+     "age"
+     "btop"
      "curl"
-     "dockutil" -}}
+     "dockutil"
+     "ffmpeg"
+     "gh" -}}
 {{ $casks := list
      "1password-cli"
-     "battery"
      "karabiner-elements"
      "tailscale" -}}
 

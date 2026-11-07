@@ -5,13 +5,16 @@ node = "lts"
 java = "temurin-21"
 
 # CLI tools
-age = "latest"
 atuin = "latest"
-btop = "latest"
-ffmpeg = "latest"
 fzf = "latest"
 git-lfs = "latest"
+{{- if eq .chezmoi.os "linux" }}
+# Linux-only (mise/aqua has issues on macOS Intel for these)
+age = "latest"
+btop = "latest"
+ffmpeg = "latest"
 gh = "latest"
+{{- end }}
 lazygit = "latest"
 zoxide = "latest"
 bat = "latest"
