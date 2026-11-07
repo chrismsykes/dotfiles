@@ -3,23 +3,13 @@
 set -eufo pipefail
 
 {{ $brews := list
-     "age"
-     "btop"
      "curl"
-     "dockutil"
-     "ffmpeg"
-     "git"
-     "git-lfs"
-     "wget"
-     "xz" -}}
+     "dockutil" -}}
 {{ $casks := list
      "1password-cli"
-     "balenaetcher"
      "battery"
      "karabiner-elements"
-     "microsoft-remote-desktop"
-     "tailscale"
-     "vlc" -}}
+     "tailscale" -}}
 
 brew bundle --file=/dev/stdin <<EOF
 {{ range ($brews | sortAlpha | uniq) -}}
