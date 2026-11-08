@@ -11,6 +11,7 @@
 {{ if ne .chezmoi.os "darwin" }}
 .chezmoiscripts/darwin/**
 .config/karabiner
+Library
 .hammerspoon
 {{ end }}
 
@@ -25,6 +26,8 @@
 .chezmoiscripts/windows/**
 Documents
 {{ else }}
+.config/btop
+.config/lazygit
 .config/mise
 .bash_aliases
 .config/git/cookies

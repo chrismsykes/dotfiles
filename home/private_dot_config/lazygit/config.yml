@@ -1,0 +1,4 @@
+git:
+  pagers:
+    # delta can't detect the terminal background inside lazygit, so set it.
+    - pager: delta --dark --paging=never
