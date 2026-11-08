@@ -36,11 +36,11 @@ fi
 if command -v op &> /dev/null; then
     if ! op whoami &> /dev/null 2>&1; then
         echo "==> Setting up 1Password CLI..."
-        # Use /dev/tty for interactive input when script is piped
+        # Use /dev/tty for full terminal access when script is piped
         if ! op account list &> /dev/null; then
-            op account add </dev/tty
+            op account add </dev/tty >/dev/tty 2>&1
         fi
-        eval $(op signin </dev/tty)
+        eval $(op signin </dev/tty 2>/dev/tty)
     fi
 fi
 
