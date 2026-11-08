@@ -35,8 +35,12 @@ fi
 # Sign in to 1Password if installed but not signed in
 if command -v op &> /dev/null; then
     if ! op whoami &> /dev/null 2>&1; then
-        echo "==> Please sign in to 1Password:"
-        eval $(op signin)
+        echo "==> Setting up 1Password CLI..."
+        # Use /dev/tty for interactive input when script is piped
+        if ! op account list &> /dev/null; then
+            op account add </dev/tty
+        fi
+        eval $(op signin </dev/tty)
     fi
 fi
 
