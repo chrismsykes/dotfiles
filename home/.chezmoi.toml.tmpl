@@ -19,13 +19,7 @@
 {{- $hostname := .chezmoi.hostname -}}
 {{- if eq .chezmoi.os "darwin" -}}
 {{-   $computerName := output "scutil" "--get" "ComputerName" | trim -}}
-{{-   if eq $computerName "Tom’s Laptop" -}}
-{{-     $hostname = "toms-laptop" -}}
-{{-   else if eq $computerName "Tom’s MacBook Air" -}}
-{{-     $hostname = "toms-mba" -}}
-{{-   else -}}
-{{-     $hostname = $computerName -}}
-{{-   end -}}
+{{-   $hostname = $computerName -}}
 {{- end -}}
 
 {{- if eq .chezmoi.os "windows" -}}
@@ -33,18 +27,12 @@
 {{- end -}}
 
 {{- if not $ephemeral -}}
-{{-   if eq $hostname "raspberrypi4" -}}
+{{-   if eq $hostname "bench" -}}
 {{-     $headless = true -}}
-{{-     $personal = true -}}
-{{-   else if eq $hostname "thinkpad" -}}
-{{-     $personal = true -}}
-{{-   else if eq $hostname "toms-laptop" -}}
-{{-     $personal = true -}}
-{{-   else if eq $hostname "toms-mba" -}}
 {{-     $personal = true -}}
 {{-   else if stdinIsATTY -}}
 {{-     $headless = promptBoolOnce . "headless" "headless" -}}
-{{-     $ephemeral = promptBoolOnce . "ephemeral" "ephemeral" -}}
+{{-     $personal = promptBoolOnce . "personal" "personal" -}}
 {{-   else -}}
 {{-     $ephemeral = true -}}
 {{-     $headless = true -}}
@@ -52,10 +40,12 @@
 {{- end -}}
 
 {{- $email := "chris@chillincool.net" -}}
+{{- $onepasswordAccount := "VLI7ZVSQKBALHMP4ZLRG6IH4IE" -}}
 
 [data]
     ephemeral = {{ $ephemeral }}
     email = {{ $email | quote }}
+    onepasswordAccount = {{ $onepasswordAccount | quote }}
     headless = {{ $headless }}
     hostname = {{ $hostname | quote }}
     personal = {{ $personal }}
