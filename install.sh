@@ -61,8 +61,14 @@ if ! command -v chezmoi &> /dev/null; then
 fi
 
 # Run chezmoi init --apply
-script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
 echo "==> Applying dotfiles..."
-chezmoi init --apply "--source=$script_dir"
+if [ -t 0 ] && [ -f "$0" ]; then
+    # Running from a file (./install.sh), use local source
+    script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
+    chezmoi init --apply "--source=$script_dir"
+else
+    # Piped from curl, fetch from GitHub
+    chezmoi init --apply chrismsykes
+fi
 
 echo "==> Done! Start a new shell or run: exec zsh"
