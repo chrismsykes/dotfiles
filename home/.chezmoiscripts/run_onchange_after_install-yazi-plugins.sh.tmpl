@@ -1,0 +1,12 @@
+{{ if ne .chezmoi.os "windows" -}}
+#!/bin/bash
+
+# package.toml hash: {{ include "private_dot_config/yazi/package.toml" | sha256sum }}
+
+set -eufo pipefail
+
+export PATH="$HOME/.local/bin:$PATH"
+
+echo "Installing yazi plugins..."
+mise exec yazi -- ya pkg install
+{{ end -}}

@@ -59,6 +59,15 @@ alias v=nvim
 alias vi=nvim
 alias vim=nvim
 
+# yazi: cd into the directory yazi was in when it exits
+function y() {
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+  rm -f -- "$tmp"
+}
+
 export EDITOR=nvim
 export GOPATH=$HOME
 export GO111MODULE=on

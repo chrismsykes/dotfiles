@@ -25,9 +25,16 @@ jq = "latest"
 shellcheck = "latest"
 gdu = "latest"
 neovim = "latest"
+
+# Yazi file manager + preview companions
+# (fd, ripgrep, fzf, zoxide, jq, ffmpeg above are also used by yazi)
+yazi = "latest"
+"aqua:ip7z/7zip" = "latest"
+resvg = "latest"
 {{- if not .ephemeral }}
 yt-dlp = "latest"
 golangci-lint = "latest"
+"cargo:bacon" = "latest"
 {{- end }}
 
 [settings]
