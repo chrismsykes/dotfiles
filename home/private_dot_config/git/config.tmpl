@@ -57,7 +57,16 @@
 	ui = auto
 [core]
 	editor = nvim
+{{- if ne .chezmoi.os "windows" }}
+	pager = delta
+{{- end }}
 	whitespace = trailing-space,space-before-tab
+{{- if ne .chezmoi.os "windows" }}
+[delta]
+	navigate = true
+[interactive]
+	diffFilter = delta --color-only
+{{- end }}
 [diff]
 	algorithm = histogram
 	renamelimit = 8192
