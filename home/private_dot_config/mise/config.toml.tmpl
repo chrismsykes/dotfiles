@@ -8,12 +8,15 @@ java = "temurin-21"
 atuin = "latest"
 fzf = "latest"
 git-lfs = "latest"
-{{- if eq .chezmoi.os "linux" }}
-# Linux-only (mise/aqua has issues on macOS Intel for these)
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.arch "arm64") }}
+# No darwin/amd64 build in aqua; Intel Macs get these from brew
 age = "latest"
+gh = "latest"
+{{- end }}
+{{- if eq .chezmoi.os "linux" }}
+# Linux-only in mise; macOS gets these from brew
 btop = "latest"
 ffmpeg = "latest"
-gh = "latest"
 {{- end }}
 lazygit = "latest"
 zoxide = "latest"

@@ -1,5 +1,11 @@
-{{ if stat "/opt/homebrew/bin/brew" -}}
-fpath+=("{{ output "/opt/homebrew/bin/brew" "--prefix" | trim }}/share/zsh/site-functions")
-
-eval "$(/opt/homebrew/bin/brew shellenv)"
+{{ if eq .chezmoi.os "darwin" -}}
+# Homebrew lives in /opt/homebrew on Apple Silicon and /usr/local on Intel.
+for _brew in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+  if [[ -x $_brew ]]; then
+    eval "$($_brew shellenv)"
+    fpath+=("$HOMEBREW_PREFIX/share/zsh/site-functions")
+    break
+  fi
+done
+unset _brew
 {{ end -}}
