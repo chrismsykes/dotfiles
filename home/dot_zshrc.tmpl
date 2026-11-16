@@ -15,6 +15,8 @@ export PATH={{ toStrings $paths | join ":" }}:$PATH
 {{- end }}
 
 eval "$(mise activate zsh)"
+# activate only updates PATH at the first prompt; do it now so oh-my-zsh plugins find mise tools
+eval "$(mise hook-env -s zsh)"
 {{- if eq .chezmoi.os "darwin" }}
 {{-   $opAgentSock := joinPath .chezmoi.homeDir "Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" }}
 {{-   if stat $opAgentSock }}

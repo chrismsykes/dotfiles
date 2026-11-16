@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Runs after files are applied so ~/.config/mise/config.toml exists on first run.
+# mise config hash: {{ include "private_dot_config/mise/config.toml.tmpl" | sha256sum }}
+
 set -eufo pipefail
 
 # Install mise if not present

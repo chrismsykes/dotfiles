@@ -13,29 +13,34 @@ if [ "$current_natural_scroll" != "false" ]; then
   gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
 fi
 
-# Set Terminal menubar visibility to false if not already set
-current_menubar_visibility=$(gsettings get org.gnome.Terminal.Legacy.Settings default-show-menubar)
-if [ "$current_menubar_visibility" != "false" ]; then
-  gsettings set org.gnome.Terminal.Legacy.Settings default-show-menubar false
-fi
+# GNOME Terminal settings (Ubuntu 26.04+ ships Ptyxis instead, so the schema may be absent)
+terminal_desktop=org.gnome.Ptyxis.desktop
+if gsettings list-schemas | grep -x org.gnome.Terminal.Legacy.Settings > /dev/null; then
+  terminal_desktop=org.gnome.Terminal.desktop
+  # Set Terminal menubar visibility to false if not already set
+  current_menubar_visibility=$(gsettings get org.gnome.Terminal.Legacy.Settings default-show-menubar)
+  if [ "$current_menubar_visibility" != "false" ]; then
+    gsettings set org.gnome.Terminal.Legacy.Settings default-show-menubar false
+  fi
 
-# Get the default profile ID for GNOME Terminal
-profile=$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d \')
+  # Get the default profile ID for GNOME Terminal
+  profile=$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d \')
 
-# Set Terminal font if not already set
-current_font=$(gsettings get org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ font)
-if [ "$current_font" != "'MesloLGS NF'" ]; then
-  gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ font "MesloLGS NF"
-fi
+  # Set Terminal font if not already set
+  current_font=$(gsettings get org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ font)
+  if [ "$current_font" != "'MesloLGS NF'" ]; then
+    gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ font "MesloLGS NF"
+  fi
 
-# Set Terminal preserve-working-directory if not already set
-current_preserve_directory=$(gsettings get org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ preserve-working-directory)
-if [ "$current_preserve_directory" != "never" ]; then
-  gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ preserve-working-directory never
+  # Set Terminal preserve-working-directory if not already set
+  current_preserve_directory=$(gsettings get org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ preserve-working-directory)
+  if [ "$current_preserve_directory" != "never" ]; then
+    gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/ preserve-working-directory never
+  fi
 fi
 
 # Create a list of favorite apps dynamically
-favorite_apps="['org.gnome.Terminal.desktop', 'org.gnome.Nautilus.desktop'"
+favorite_apps="['${terminal_desktop}', 'org.gnome.Nautilus.desktop'"
 
 {{ if lookPath "google-chrome" -}}
 favorite_apps="${favorite_apps}, 'google-chrome.desktop'"
