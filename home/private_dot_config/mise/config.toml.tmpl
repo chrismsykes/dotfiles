@@ -42,6 +42,8 @@ resvg = "latest"
 {{- if not .ephemeral }}
 yt-dlp = "latest"
 golangci-lint = "latest"
+# cargo: backend needs a Rust toolchain; mise installs it before cargo tools
+rust = "latest"
 "cargo:bacon" = "latest"
 {{- end }}
 
