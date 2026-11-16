@@ -64,6 +64,10 @@ spinner() {
 # Install packages with minimal output
 echo -e "Pulling packages included in default repositories via package manager:"
 echo -e "Updating package manager..."
+{{ if $sudo -}}
+# Authenticate up front: the background apt runs below can't show a password prompt
+sudo -v
+{{ end -}}
 log=$(mktemp)
 # Run apt in the background with a spinner, but surface its output and exit code on failure
 run_quiet() {
