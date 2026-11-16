@@ -39,6 +39,16 @@ if gsettings list-schemas | grep -x org.gnome.Terminal.Legacy.Settings > /dev/nu
   fi
 fi
 
+# Ptyxis settings (default terminal on Ubuntu 26.04+): use the Nerd Font so powerlevel10k glyphs render
+if gsettings list-schemas | grep -x org.gnome.Ptyxis > /dev/null; then
+  if [ "$(gsettings get org.gnome.Ptyxis use-system-font)" != "false" ]; then
+    gsettings set org.gnome.Ptyxis use-system-font false
+  fi
+  if [ "$(gsettings get org.gnome.Ptyxis font-name)" != "'MesloLGS NF 11'" ]; then
+    gsettings set org.gnome.Ptyxis font-name "MesloLGS NF 11"
+  fi
+fi
+
 # Create a list of favorite apps dynamically
 favorite_apps="['${terminal_desktop}', 'org.gnome.Nautilus.desktop'"
 
