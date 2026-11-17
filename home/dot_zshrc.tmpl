@@ -80,12 +80,14 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export RIPGREP_CONFIG_PATH=~/.config/ripgrep/config
 
-{{- /* op is installed by brew during the first apply, after templates render, so skip until it exists */}}
-{{- if and .personal (eq .chezmoi.os "darwin") (lookPath "op") }}
-{{/* TODO: Set up 1Password tokens for Linux when needed */}}
-export CHEZMOI_GITHUB_ACCESS_TOKEN={{ onepasswordRead "op://chezmoi/chezmoi GitHub API Token/credential" .onepasswordAccount | trim }}
-export HOMEBREW_GITHUB_API_TOKEN={{ onepasswordRead "op://Personal/Homebrew GitHub API Token/credential" .onepasswordAccount | trim }}
+# GitHub API token from gh's login: raises rate limits for chezmoi's gitHub* template functions{{ if eq .chezmoi.os "darwin" }} and brew{{ end }}
+if (( $+commands[gh] )) && _gh_token=$(gh auth token 2>/dev/null); then
+  export CHEZMOI_GITHUB_ACCESS_TOKEN=$_gh_token
+{{- if eq .chezmoi.os "darwin" }}
+  export HOMEBREW_GITHUB_API_TOKEN=$_gh_token
 {{- end }}
+fi
+unset _gh_token
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
