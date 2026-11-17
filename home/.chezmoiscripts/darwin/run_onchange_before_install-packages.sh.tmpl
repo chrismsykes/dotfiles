@@ -25,6 +25,10 @@ fi
      "1password-cli"
      "karabiner-elements"
      "tailscale-app" -}}
+{{/* battery (charge limiter) only supports Apple Silicon */}}
+{{ if eq .chezmoi.arch "arm64" -}}
+{{   $casks = append $casks "battery" -}}
+{{ end -}}
 
 brew bundle --no-upgrade --file=/dev/stdin <<EOF
 {{ range ($brews | sortAlpha | uniq) -}}
