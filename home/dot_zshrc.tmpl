@@ -80,7 +80,8 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export RIPGREP_CONFIG_PATH=~/.config/ripgrep/config
 
-{{- if and .personal (eq .chezmoi.os "darwin") }}
+{{- /* op is installed by brew during the first apply, after templates render, so skip until it exists */}}
+{{- if and .personal (eq .chezmoi.os "darwin") (lookPath "op") }}
 {{/* TODO: Set up 1Password tokens for Linux when needed */}}
 export CHEZMOI_GITHUB_ACCESS_TOKEN={{ onepasswordRead "op://chezmoi/chezmoi GitHub API Token/credential" .onepasswordAccount | trim }}
 export HOMEBREW_GITHUB_API_TOKEN={{ onepasswordRead "op://Personal/Homebrew GitHub API Token/credential" .onepasswordAccount | trim }}
