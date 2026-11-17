@@ -67,7 +67,13 @@ if [ -t 0 ] && [ -f "$0" ]; then
     script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
     chezmoi init --apply "--source=$script_dir"
 else
-    # Piped from curl, fetch from GitHub
+    # Piped from curl, fetch from GitHub. init won't update an existing clone
+    # (e.g. from an earlier failed run), so pull it first.
+    source_dir="${XDG_DATA_HOME:-$HOME/.local/share}/chezmoi"
+    if [ -d "$source_dir/.git" ]; then
+        echo "==> Updating existing clone in $source_dir..."
+        git -C "$source_dir" pull --ff-only
+    fi
     chezmoi init --apply chrismsykes
 fi
 
