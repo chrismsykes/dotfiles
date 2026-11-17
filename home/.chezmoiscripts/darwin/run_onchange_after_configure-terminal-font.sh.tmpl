@@ -1,0 +1,17 @@
+{{ if not .headless -}}
+#!/bin/bash
+
+set -eufo pipefail
+
+# Point Terminal.app's default profile at the Nerd Font (installed via .chezmoiexternal)
+# so powerlevel10k / oh-my-zsh glyphs render. Warn rather than abort if it fails.
+if ! osascript <<'EOF'
+tell application "Terminal"
+	set font name of default settings to "MesloLGS NF"
+	set font size of default settings to 13
+end tell
+EOF
+then
+	echo "WARNING: couldn't set Terminal.app font; set it to MesloLGS NF in Terminal → Settings → Profiles → Text" >&2
+fi
+{{ end -}}
