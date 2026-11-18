@@ -1,6 +1,19 @@
+{{- $opSshSign := "/Applications/1Password.app/Contents/MacOS/op-ssh-sign" }}
+{{- $sign := and (eq .chezmoi.os "darwin") (stat $opSshSign) -}}
 [user]
 	name = Chris Sykes
 	email = {{ .email }}
+{{- if $sign }}
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB8Nc9eN7rUz/y6nKJByyw++iTnjAMCsIOv72k8sI+qN
+[commit]
+	gpgsign = true
+[tag]
+	gpgsign = true
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = {{ $opSshSign }}
+{{- end }}
 [advice]
 	addEmptyPathspec = false
 	pushNonFastForward = false
